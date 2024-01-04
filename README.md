@@ -107,8 +107,95 @@ container_memory_usage_bytes{name="redis"}
 
 docker run -d -p 80:80 --name tetris-game dushyantkumark/tetris-v2:latest
 
-[dockerhub_url](https://hub.docker.com/repositories/dushyantkumark)
+[dockerhub_hub](https://hub.docker.com/repositories/dushyantkumark)
 
 ```
 docker ps
 ```
+
+# Node Exporter
+
+It serves as an agent that runs on the machine to be monitored, capturing information about the host's hardware and operating system metrics. These metrics can include details about CPU usage, memory usage, disk utilization, network statistics, and other essential system-level information.
+
+Update docker-compose.yaml in prometheus directory, docker compose file is used to define and run multi-container Docker applications, this time is for "`node-exporter`".
+
+```
+version: '3.2'
+services:
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9100
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+    - 9090:9090
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+    - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+    - cadvisor
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+    - 8080:8080
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+    - redis
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+    - 6379:6379
+```
+
+# Verifydocker
+
+```
+docker-compose up -d
+docker-compose ps
+```
+
+There is only two target "prometheus" and "docker" at all right now , to add new target <> here, add the new job in prometheus.yml for docker containers.
+
+Now open prometheus.yaml file in prometheus directory and add new job_name with static_configs.
+
+```
+scrape_configs:
+- job_name: node-exporter
+  scrape_interval: 5s
+  static_configs:
+  - targets:
+    - node-exporter:9100
+```
+
+Now restart prometheus container.
+
+```
+docker restart <prometheus containerID/containerNAME>
+```
+
+
+# Grafana Dashboard
+
+got to prometheus -> dashbaord -> add new -> paste the `ID (10619)` for docker.
+
+got to prometheus -> dashbaord -> add new -> paste the `ID (1860)` for node-exporter.

@@ -32,6 +32,7 @@
 6. operation - aggregate -sum/count and EXECUTE. 
 7. to see the docker dashboard - goto prometheus dashboard - search docker - docker dashboard ID: 10619 
 8. got to prometheus- dashbaord - add new - paste the ID and select the prometheus server and hit enter. thts all now you will see the docker metrics in dashboard.
+9. got to prometheus -> dashbaord -> add new -> paste the ID (1860) for node-exporter.
 for detail - check my hashnode blog : 
 
 
