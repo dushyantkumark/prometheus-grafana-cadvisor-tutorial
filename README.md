@@ -1,6 +1,5 @@
 # grafana-prometheus-cadvisor-Tutorial
 
-https://krishkp.hashnode.dev/monitoring-in-prometheus-and-grafana-docker-dashboard-cadvisor
 
 this is a documentation of how to setup prometheus , grafana via cadvisor in linux.
 
