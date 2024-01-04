@@ -1,0 +1,37 @@
+1. make a ec2 instance of t2.medium
+2. Install docker and docker compose on ec2 instance
+3. make a directory prometheus.
+4. install prometheus via document -wget (readme file)
+5. make a compose file -- see the compose file in this repo.
+6. run docker-compose up -d  : this will create 3 containers - cadvisor, prometheus and redis.
+7. open the port - 8080 (cadvisor), 9090 (prometheus gui) in ec2 instance
+8. go to prometheus > status> target- there is no target at all right now , to add the target <<docker>> here, add the  new job in prometheus.yml
+  scrape_configs:
+  - job_name: docker
+    static_configs:
+     - targets:
+        - <container_name>:<port>
+9. restart the docker container and see the prometheus gui now, automatically a target <<docker>> will be added tehre.
+10. goto graph and hit the promQL - rate(container_cpu_usage_seconds_total{name="redis"}[1m])
+
+# see the metrics of other docker container
+
+1. run the docker container directly in terminal
+2. docker run -d -p 80:80 --name tetris-game dushyantkumark/tetris-v2:latest
+3. docker ps : docker container should run now.
+4. go to cadvisor gui and this new tetris-game should show there also.
+5. goto prometheus, and hit the promQL - rate(container_cpu_usage_seconds_total{name="tetris-game"}[1m])
+
+
+# see the dashboard in grafana
+ 1. install grafan via doc. - see readmme file.
+2. open grafana - add data source => add prometheus => add name and server url (localhost:9090)
+3. explore view > enter queries-> metric- container network recive bytes
+4. label - name
+5. selecyty value - select your container name
+6. operation - aggregate -sum/count and EXECUTE. 
+7. to see the docker dashboard - goto prometheus dashboard - search docker - docker dashboard ID: 10619 
+8. got to prometheus- dashbaord - add new - paste the ID and select the prometheus server and hit enter. thts all now you will see the docker metrics in dashboard.
+for detail - check my hashnode blog : 
+
+
